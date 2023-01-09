@@ -88,10 +88,10 @@ public class FibonacciHeap
     public HeapNode insert(int key)
     {    
         HeapNode temp = new HeapNode(key);
-        if (this.first == null) {
-            this.first = temp;
+        if (this.first != null) {
+            this.first.insertBefore(temp);
         }
-        else {this.first.insertBefore(temp);}
+        this.first = temp;
         this.size++;
         this.numTrees++;
         this.replaceMin(temp);
@@ -424,7 +424,7 @@ public class FibonacciHeap
         }
         
     }
-    
+
     private class KMinHeapNode extends HeapNode{
         private HeapNode originalNode;
         private KMinHeapNode(HeapNode originalHeapNode) {

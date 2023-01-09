@@ -135,7 +135,10 @@ public class HeapPrinter {
 
     public static void printAttr(FibonacciHeap FH) {
         stream.println(FH.getSize());
-        stream.println(FH.findMin().getKey());
+        var temp = FH.findMin();
+        if (temp != null) {
+            stream.println(temp.getKey());
+        }
         stream.println(FH.getNumTrees());
         stream.println(FH.getCountMarkNodes());
         HeapPrinter.print(FH, false);
