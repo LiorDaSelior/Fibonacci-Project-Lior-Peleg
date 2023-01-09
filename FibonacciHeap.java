@@ -439,8 +439,38 @@ public class FibonacciHeap
     */
     public static int[] kMin(FibonacciHeap H, int k)
     {  
-    	int[] res=new int[k];
-        return res;
+    	int [] res= new int[k];
+    	
+    	//if H is empty Heap
+    	if(H.isEmpty()==true) {
+    		
+    		return res;
+    	}
+    	
+    	FibonacciHeap helperFib=new FibonacciHeap();
+
+    	HeapNode minFibH=H.findMin();
+    	HeapNode addedNode=helperFib.insert(minFibH.getKey());
+    	addedNode.setKMinPointer(minFibH);
+    	for (int i=0;i<k;i++) {
+    		minFibH=helperFib.findMin();
+    		res[i]=minFibH.getKey();
+    		helperFib.deleteMin();
+    		
+    		HeapNode currMinHelpKMinPTR=minFibH.getKMinPointer();
+    		if(currMinHelpKMinPTR.getChild()!=null) {
+    			HeapNode currMinHelpKMinPTRSon=currMinHelpKMinPTR.getChild();
+    			do {
+    				addedNode=helperFib.insert(currMinHelpKMinPTRSon.getKey());
+    				addedNode.setKMinPointer(currMinHelpKMinPTRSon);
+    				currMinHelpKMinPTRSon=currMinHelpKMinPTRSon.getNext();
+    			}
+    			while (currMinHelpKMinPTRSon!=currMinHelpKMinPTR.getChild());
+    				
+    		}
+    	}
+    	return res;
+
      }
 
     
@@ -461,6 +491,7 @@ public class FibonacciHeap
     	private HeapNode parent;
     	private HeapNode next;
     	private HeapNode prev;
+        private HeapNode KMinPointer;
 
 
     	//Constructor of HeapNode
@@ -473,6 +504,7 @@ public class FibonacciHeap
     		this.parent=null;
     		this.next=this;
     		this.prev=this;
+            this.KMinPointer = null;
     		
     	}
     	
@@ -532,6 +564,13 @@ public class FibonacciHeap
     		this.prev=node;
     	}
 
+        public HeapNode getKMinPointer() {
+    		return this.KMinPointer;
+    	}
+        public void setKMinPointer(HeapNode node) {
+    		this.KMinPointer=node;
+    	}
+
         private void insertBefore(HeapNode node) {
             HeapNode temp = this.prev;
             node.next = this;
@@ -573,7 +612,7 @@ public class FibonacciHeap
         }
         
     }
-
+/* 
     private class KMinHeapNode extends HeapNode{
         private HeapNode originalNode;
         private KMinHeapNode(HeapNode originalHeapNode) {
@@ -581,5 +620,5 @@ public class FibonacciHeap
             this.originalNode = originalHeapNode;
         }
     
-    }
+    } */
 }
