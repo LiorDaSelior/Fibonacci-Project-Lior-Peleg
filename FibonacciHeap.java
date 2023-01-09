@@ -72,7 +72,11 @@ public class FibonacciHeap
     * @pre: node is in heap, node.getParent() == null (node is root node).
     */
     private boolean replaceMin(HeapNode node) {
-        if (this.min != null && node.getKey() > this.min.getKey()) {
+    	if (this.min == null) {
+    		this.min=node;
+    		return true;
+    	}
+        if ((node.getKey() < this.min.getKey())) {
             this.min = node;
             return true;
         }
