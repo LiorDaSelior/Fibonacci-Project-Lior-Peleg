@@ -30,7 +30,14 @@ public class FibonacciHeap
 			this.countMarkNodes=0;
 			
 		}
+	
+	public HeapNode getFirst() {
+		return this.first;
+	}
 		
+	public int getSize() {
+		return this.size;
+	}
    /**
     * public boolean isEmpty()
     *
