@@ -144,7 +144,20 @@ public class HeapPrinter {
         HeapPrinter.print(FH, false);
     }
     
-    public static void basicTest1 () {
+    public static void basicTest1() {
+        FibonacciHeap FH = createHeap(new int[] {4,5,6});
+        printAttr(FH); 
+        FH.deleteMin();
+        printAttr(FH); 
+        for (int i = 1; i<4; i++) {
+        	FH.insert(i);
+        }
+        printAttr(FH); 
+        FH.deleteMin();
+        printAttr(FH); 
+    }
+    
+    public static void basicTest2() {
         FibonacciHeap FH1 = HeapPrinter.createHeap(new int[] {1,2,3});
         FibonacciHeap FH2 = createHeap(new int[] {5,6,7});
         printAttr(FH1);
@@ -297,36 +310,7 @@ public class HeapPrinter {
     }
 
     public static void main(String[] args) {
-    	demo();
-        FibonacciHeap FH = new FibonacciHeap();
-		for (int i = 0; i < 20; i++) {
-			FH.insert(i);
-		}
-
-        stream.println("Printing in regular mode:");
-        HeapPrinter.print(FH, false);
-		for (int i = 0; i < 10; i++) {
-			FH.deleteMin();
-			
-			System.out.println(FH.findMin().getKey());
-
-	        stream.println("Printing in regular mode:");
-	        HeapPrinter.print(FH, false);
-        }
-        FibonacciHeap FH2 = new FibonacciHeap();
-		for (int i = 0; i < 10; i++) {
-			FH2.insert(i);
-		}
-		System.out.println(FH.getSize());
-		FH2.meld(FH);
-        stream.println("Printing in regular mode:");
-        HeapPrinter.print(FH2, false);
-        System.out.println(FH2.getSize());
-        System.out.println(FH2.findMin().getKey());
-        FH2.deleteMin();
-        HeapPrinter.print(FH2, false);
-        System.out.println(FH2.getSize());
-        System.out.println(FH2.findMin().getKey());
+    	basicTest1();
     }
 
     public static void q2(int i){
