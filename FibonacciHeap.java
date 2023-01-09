@@ -16,8 +16,10 @@ public class FibonacciHeap
 		private int countMarkNodes;
 
 		
-		private static int countLinksTress=0;
+		private static int countLinks=0;
 		private static int countCuts=0;
+
+        private static double phi = (1 + Math.sqrt(5))/2; //The golden ratio
 		
 		
 		
@@ -98,6 +100,110 @@ public class FibonacciHeap
     	return temp;
     }
 
+       /**
+    * private removeMinNode()
+    *
+    * Only used for deleteMin. Remove the node with minimal key, add children as heap roots.
+    *
+    * @pre: there is more than 1 node in Heap.
+    */
+    public void removeMinNode() {
+        int children_amount;
+        int reset_mark_amount;
+        HeapNode minNode = this.min;
+        if (this.numTrees == 1) { // If there is only one tree and heap has 2+ nodes therefore min has child.
+            this.first = minNode.child;
+            this.min = minNode.child;
+            reset_mark_amount = this.min.ResetMarkedInChain();
+            children_amount = this.min.nulifyParentInChain();
+            this.numTrees = this.numTrees - 1 + children_amount;
+            this.countMarkNodes = this.countMarkNodes - reset_mark_amount;
+		    this.size--;
+        }
+        else { // If there 2+ trees, min can be a lone root.
+           if (minNode.child == null) {
+                if (minNode == this.first) {
+                    this.first = this.min.next;
+                }
+           }
+           else {
+                reset_mark_amount = this.min.child.ResetMarkedInChain();
+                children_amount = this.min.child.nulifyParentInChain();
+                minNode.insertBefore(minNode.child, minNode.child.prev);
+                if (minNode == this.first) {
+                    this.first = minNode.child;
+                }
+                this.numTrees = this.numTrees + children_amount;
+                this.countMarkNodes = this.countMarkNodes - reset_mark_amount;
+           }
+           HeapNode rightBrother = this.min.next;
+           HeapNode leftBrother = this.min.prev;
+           rightBrother.prev = leftBrother;
+           leftBrother.next = rightBrother;
+           this.min = this.first; //it doesn't matter who is considered min before we start consolidate, only that it is a root node
+           this.numTrees--;
+           this.size--;
+        }
+    }
+
+    private HeapNode consolidateConnect(HeapNode node1, HeapNode node2) {
+        var minHeapNode = node1.key < node2.key ? node1 : node2;
+		var maxHeapNode = node1.key > node2.key ? node1 : node2;
+        minHeapNode.mark = false;
+        this.countMarkNodes--;
+        var temp = minHeapNode.getChild();
+        minHeapNode.setChild(maxHeapNode);
+        maxHeapNode.setParent(minHeapNode);
+        // connect children
+        if (temp == null) {
+            maxHeapNode.setNext(maxHeapNode);
+            maxHeapNode.setPrev(maxHeapNode);
+        }
+        else {
+            maxHeapNode.setPrev(temp.getPrev());
+            temp.getPrev().setNext(maxHeapNode);
+
+            temp.setPrev(maxHeapNode);
+            maxHeapNode.setNext(temp);
+        }
+        minHeapNode.setRank(minHeapNode.getRank()+1);
+        countLinks++;
+        return minHeapNode;
+    }
+
+    public void consolidate() {
+        HeapNode[] heapArr = new HeapNode[(int)(Math.log(this.size)/Math.log(FibonacciHeap.phi)) + 1];
+        HeapNode currNode = this.first;
+        HeapNode tempNode;
+        int currRank;
+        for (int i = 0; i < this.numTrees; i++) {
+            tempNode = currNode;
+            currNode = currNode.next;
+            tempNode.next = tempNode;
+            tempNode.prev = tempNode;
+            currRank = tempNode.getRank();
+            while (heapArr[currRank] != null) {
+                tempNode = consolidateConnect(heapArr[currRank], tempNode);
+                this.numTrees--;
+                currRank++;
+            }
+            heapArr[currRank] = tempNode;
+        }
+        this.min=null;
+        this.first=null;
+        for (HeapNode heapNode : heapArr) {
+            if (heapNode != null) {
+                if (this.first==null) {
+                    this.first = heapNode;
+                }
+                else {
+                    this.first.insertBefore(heapNode);
+                }
+                replaceMin(heapNode);
+            }
+        }
+    }
+
    /**
     * public void deleteMin()
     *
@@ -106,6 +212,25 @@ public class FibonacciHeap
     */
     public void deleteMin()
     {
+        if (this.isEmpty()) {return;}
+        if (this.size == 1) { //If empty no need to do anything
+            this.min = null;
+            this.first = null;
+            this.size--;
+            this.numTrees--;
+            return;
+        }
+        this.removeMinNode();
+        this.consolidate();
+
+        // HeapNode[] heapArr = new HeapNode[(int)(Math.log(this.size)/Math.log(FibonacciHeap.phi)) + 1];
+
+        // else if (this.size == 1) {
+            
+        // }
+        // else {
+
+        // }
      	return; // should be replaced by student code
      	
     }
@@ -289,7 +414,7 @@ public class FibonacciHeap
     */
     public static int totalLinks()
     {    
-    	return countLinksTress;
+    	return countLinks;
     }
 
    /**
@@ -421,6 +546,30 @@ public class FibonacciHeap
             this.prev = node2;
             temp.next = node1;
             node1.prev = temp;
+        }
+
+        private int nulifyParentInChain() {
+            HeapNode target = this;
+            int count = 0;
+            do {
+                count++;
+                target.parent = null;
+                target = target.next;
+            } while (target != this);
+            return count;
+        }
+
+        private int ResetMarkedInChain() {
+            HeapNode target = this;
+            int count = 0;
+            do {
+                if (target.mark) {
+                    count++;
+                    target.mark = false;
+                }
+                target = target.next;
+            } while (target != this);
+            return count;
         }
         
     }
