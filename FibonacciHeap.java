@@ -348,17 +348,17 @@ public class FibonacciHeap
     	//this is the min
     	if (this.size==1) {
     		this.min=null;
+    		this.first=null;
+    		this.numTrees--;
+    		this.size--;
  
     	}
     	else {
-    		int equalToMin=(Math.abs(x.getKey())-Math.abs(this.min.getKey()));//the number we found that equal to min, we have to remember that x.key>min.key
-    		int delta=equalToMin+1;
-    		this.decreaseKey(x,delta);
+    		this.decreaseKey(x,x.getKey() + 1 - this.min.getKey());
     		deleteMin();
     		
     	}
 
-    	this.size--;//?????
     }
 
    /**
@@ -452,9 +452,7 @@ public class FibonacciHeap
 	        }
 	    FibonacciHeap.countCuts++;
     }
-       
-       
-       
+
         public void cut(HeapNode x,HeapNode xParent) {
         if (xParent!=null) {
 	        xParent.setRank(xParent.getRank()-1);
@@ -470,6 +468,11 @@ public class FibonacciHeap
 	        if (x == xParent.getChild()) {  
 	        	xParent.setChild(x.getNext());
 	        }
+	        if (x.getMarked()==true) {
+	        	x.setMarked(false);
+	        	this.countMarkNodes--;
+	        }
+	        x.setParent(null);
 	       
 	       
 	        //add to the trees
