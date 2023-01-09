@@ -31,7 +31,6 @@ public class FibonacciHeap
 			
 		}
 		
-	
    /**
     * public boolean isEmpty()
     *
@@ -45,7 +44,24 @@ public class FibonacciHeap
     	}
     	return false;
     }
-		
+	
+   /**
+    * private replaceMin(HeapNode node)
+    *
+    * Only used for insert. If argument node has minimal key, update min attr in Heap.
+    * 
+    * Returns true if min was replaced, false otherwise.
+    *
+    * @pre: node is in heap, node.getParent() == null (node is root node).
+    */
+    private boolean replaceMin(HeapNode node) {
+        if (this.min != null && node.getKey() > this.min.getKey()) {
+            this.min = node;
+            return true;
+        }
+        return false;
+    }
+
    /**
     * public HeapNode insert(int key)
     *
@@ -56,7 +72,15 @@ public class FibonacciHeap
     */
     public HeapNode insert(int key)
     {    
-    	return new HeapNode(key); // should be replaced by student code
+        HeapNode temp = new HeapNode(key);
+        if (this.first == null) {
+            this.first = temp;
+        }
+        else {this.first.insertBefore(temp);}
+        this.size++;
+        this.numTrees++;
+        this.replaceMin(temp);
+    	return temp;
     }
 
    /**
@@ -90,7 +114,23 @@ public class FibonacciHeap
     */
     public void meld (FibonacciHeap heap2)
     {
-    	  return; // should be replaced by student code   		
+        if (this.first != null && heap2.first != null) {
+            HeapNode node1 = this.first;
+            HeapNode node2 = this.first.getPrev();
+            heap2.first.insertBefore(node1, node2);
+            this.size = this.size + heap2.size;
+            this.numTrees = this.numTrees + heap2.numTrees;
+            this.countMarkNodes = this.countMarkNodes + heap2.countMarkNodes;
+            this.replaceMin(heap2.min);
+        }
+        else if (this.first == null && heap2.first != null) {
+            this.first = heap2.first;
+            this.size = heap2.size;
+            this.min = heap2.min;
+            this.numTrees = heap2.numTrees;
+            this.countMarkNodes = heap2.countMarkNodes;
+        }
+        		
     }
 
    /**
@@ -351,6 +391,23 @@ public class FibonacciHeap
     	public void setPrev(HeapNode node) {
     		this.prev=node;
     	}
+
+        private void insertBefore(HeapNode node) {
+            HeapNode temp = this.prev;
+            node.next = this;
+            this.prev = node;
+            temp.next = node;
+            node.prev = temp;
+        }
+
+        private void insertBefore(HeapNode node1, HeapNode node2) {
+            HeapNode temp = this.prev;
+            node2.next = this;
+            this.prev = node2;
+            temp.next = node1;
+            node1.prev = temp;
+        }
+        
     }
         private class KMinHeapNode extends HeapNode{
             private HeapNode originalNode;
