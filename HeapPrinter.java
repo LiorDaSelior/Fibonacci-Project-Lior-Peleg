@@ -125,18 +125,35 @@ public class HeapPrinter {
         printHeapNode(heap.getFirst(), null, list, verbose);
     }
     
-    public static FibonacciHeap createHeap(List<Integer> listOfValues) {
+    public static FibonacciHeap createHeap(int[] values) {
         var temp = new FibonacciHeap();
-        for (int value : listOfValues) {
+        for (int value : values) {
             temp.insert(value);
         }
         return temp;
     }
+
+    public static void printAttr(FibonacciHeap FH) {
+        stream.println(FH.getSize());
+        stream.println(FH.findMin().getKey());
+        stream.println(FH.getNumTrees());
+        stream.println(FH.getCountMarkNodes());
+        HeapPrinter.print(FH, false);
+    }
     
     public static void basicTest1 () {
-        var FH1 = createHeap({1,2,3});
-        var FH2 = createHeap({1,2,3});
-        
+        FibonacciHeap FH1 = HeapPrinter.createHeap(new int[] {1,2,3});
+        FibonacciHeap FH2 = createHeap(new int[] {5,6,7});
+        printAttr(FH1);
+        FH1.insert(4);
+        printAttr(FH1);
+        FH1.meld(FH2);
+        printAttr(FH1);
+        FH1.insert(500);
+        printAttr(FH1);
+        FibonacciHeap FH3 = createHeap(new int[] {});
+        FH1.meld(FH3);  
+        printAttr(FH1); 
     }
 
     public static void demo() {

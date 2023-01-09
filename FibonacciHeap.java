@@ -38,6 +38,14 @@ public class FibonacciHeap
 	public int getSize() {
 		return this.size;
 	}
+
+    public int getNumTrees() {
+		return this.numTrees;
+	}
+
+    public int getCountMarkNodes() {
+		return this.countMarkNodes;
+	}
    /**
     * public boolean isEmpty()
     *
@@ -416,12 +424,13 @@ public class FibonacciHeap
         }
         
     }
-        private class KMinHeapNode extends HeapNode{
-            private HeapNode originalNode;
-            private KMinHeapNode(HeapNode originalHeapNode) {
-                super(originalHeapNode.key);
-                this.originalNode = originalHeapNode;
-            }
-        
+    
+    private class KMinHeapNode extends HeapNode{
+        private HeapNode originalNode;
+        private KMinHeapNode(HeapNode originalHeapNode) {
+            super(originalHeapNode.key);
+            this.originalNode = originalHeapNode;
+        }
+    
     }
 }
