@@ -144,34 +144,80 @@ public class HeapPrinter {
         HeapPrinter.print(FH, false);
     }
     
-    public static void basicTest1() {
-        FibonacciHeap FH = createHeap(new int[] {4,5,6});
-        printAttr(FH); 
-        FH.deleteMin();
-        printAttr(FH); 
-        for (int i = 1; i<4; i++) {
+    public static void basicTest1(int n) {
+    	int m = (int)Math.pow(3, n)-1;
+    	FibonacciHeap.HeapNode pointer = null;
+    	FibonacciHeap FH = new FibonacciHeap();
+        for (int i = 0; i<m+1; i++) {
         	FH.insert(i);
         }
-        printAttr(FH); 
-        FH.deleteMin();
-        printAttr(FH); 
+		int newN=(int) Math.floor(m*(3/4));
+		for(int j=0;j<=(3/4)*m;j++) {
+			FH.deleteMin();
+		}
+        stream.println(FH.totalLinks()); 
+        stream.println(FH.potential()); 
     }
     
     public static void basicTest2() {
-        FibonacciHeap FH1 = HeapPrinter.createHeap(new int[] {1,2,3});
-        FibonacciHeap FH2 = createHeap(new int[] {5,6,7});
-        printAttr(FH1);
-        FH1.insert(4);
-        printAttr(FH1);
-        FH1.meld(FH2);
-        printAttr(FH1);
-        FH1.insert(500);
-        printAttr(FH1);
-        FibonacciHeap FH3 = createHeap(new int[] {});
-        FH1.meld(FH3);  
-        printAttr(FH1); 
+    	for (int i=6;i<=14;i+=2) {
+    		long startTime=System.currentTimeMillis();
+    		FibonacciHeap fib=new FibonacciHeap();
+    		int m=(int) (Math.pow(3, i)-1);
+    		for(int k=0;k<=m;k++) {
+    			fib.insert(k);
+    		}
+    		int newN=(int) Math.floor(m *(0.75));
+    		//(m *(3/4)); //OVERFLOW -> THIS IS 0, Cause: multiplying done by int arithmetic
+    		for(int j=1;j<=newN;j++) {
+    			fib.deleteMin();
+    		}
+    		long endTime=System.currentTimeMillis();
+    		stream.println(m);
+    		stream.println(endTime-startTime);
+    		stream.println(FibonacciHeap.totalLinks());
+    		stream.println(FibonacciHeap.totalCuts());
+    		stream.println(fib.potential());
+    		stream.println("---");
+    	}
     }
-
+    public static void basicTest3() {
+    	for (int i=5;i<=20;i+=5) {
+    		FibonacciHeap fib=new FibonacciHeap();
+    		int m=(int) (Math.pow(2, i));
+    		double trouble = (Math.log(m)/ Math.log(2));
+    		int newN=(int) (trouble);
+    		FibonacciHeap.HeapNode[] arr = new FibonacciHeap.HeapNode[newN];
+    		int[] arr1 = new int[newN];
+    		long startTime=System.currentTimeMillis();
+    		int j = 0;
+    		for(int k=m-1;k>=-1;k--) {
+    			var temp = fib.insert(k);
+    			if (k == m-Math.pow(2, arr.length-newN+1)+1) {
+    				arr[j] = temp;
+    				arr1[j] = m+1;
+    				newN--;
+    				j++;
+    			}
+    		}
+    		fib.deleteMin();
+    		stream.println(newN);
+    		stream.println("---");
+    		//(m *(3/4)); //OVERFLOW -> THIS IS 0, Cause: multiplying done by int arithmetic
+    		int r = 0;
+    		while (r < arr.length) {
+    			fib.decreaseKey(arr[r], arr1[r]);
+    			r++;
+    		}
+    		long endTime=System.currentTimeMillis();
+    		stream.println(m);
+    		stream.println(endTime-startTime);
+    		stream.println(FibonacciHeap.totalLinks());
+    		stream.println(FibonacciHeap.totalCuts());
+    		stream.println(fib.potential());
+    		stream.println("---");
+    	}
+    	}
     public static void demo() {
         /* Build an example */
         FibonacciHeap heap = new FibonacciHeap();
@@ -310,7 +356,8 @@ public class HeapPrinter {
     }
 
     public static void main(String[] args) {
-    	basicTest1();
+    	//basicTest1(6);
+    	basicTest3();
     }
 
     public static void q2(int i){
