@@ -113,11 +113,11 @@ public class FibonacciHeap
    /**
     * private replaceMin(HeapNode node)
     *
-    * Only used for insert. If argument node has minimal key, update min attr in Heap.
+    * If argument node has minimal key, update min attr in Heap.
     * 
-    * Returns true if min was replaced, false otherwise.
-    *
     * @pre: node is in heap, node.getParent() == null (node is root node).
+    *
+    * Returns true if min was replaced, false otherwise.
     */
     private boolean replaceMin(HeapNode node) {
     	if (this.min == null) {
@@ -137,6 +137,9 @@ public class FibonacciHeap
     * Creates a node (of type HeapNode) which contains the given key, and inserts it into the heap.
     * The added key is assumed not to already belong to the heap.  
     * 
+    * Help functions: replaceMin
+    * Complexity: O(1)
+    *
     * Returns the newly created node.
     */
     public HeapNode insert(int key)
@@ -152,12 +155,14 @@ public class FibonacciHeap
     	return temp;
     }
 
-       /**
-    * private removeMinNode()
+    /**
+    * private void removeMinNode()
     *
-    * Only used for deleteMin. Remove the node with minimal key, add children as heap roots.
+    * Only used for deleteMin. Remove the node with minimal key, add and connect it's children as heap roots.
     *
     * @pre: there is more than 1 node in Heap.
+    * Help functions: HeapNode.resetMarkedInChain, HeapNode.nulifyParentInChain, HeapNode.insertBefore
+    * Complexity: O(m), m - number of subtrees of root with minimum key (m = O(logn))
     */
     public void removeMinNode() {
         int children_amount;
@@ -198,6 +203,15 @@ public class FibonacciHeap
         }
     }
 
+    /**
+    * private HeapNode consolidateConnect(HeapNode node1, HeapNode node2)
+    *
+    * Only used for consolidate. Add the node with the bigger key as left-most child of node with the smaller key.
+    *
+    * Complexity: O(1)
+    *
+    * Returns the HeapNode with the smaller key
+    */
     private HeapNode consolidateConnect(HeapNode node1, HeapNode node2) {
         var minHeapNode = node1.key < node2.key ? node1 : node2;
 		var maxHeapNode = node1.key > node2.key ? node1 : node2;
@@ -208,25 +222,30 @@ public class FibonacciHeap
         var temp = minHeapNode.getChild();
         minHeapNode.setChild(maxHeapNode);
         maxHeapNode.setParent(minHeapNode);
-        // connect children
-        if (temp == null) {
+        // connect maxHeapNode to children
+        if (temp == null) { //if there are no children
             maxHeapNode.setNext(maxHeapNode);
             maxHeapNode.setPrev(maxHeapNode);
         }
         else {
-//            maxHeapNode.setPrev(temp.getPrev());
-//            temp.getPrev().setNext(maxHeapNode);
-//            temp.setPrev(maxHeapNode);
-//            maxHeapNode.setNext(temp);
         	temp.insertBefore(maxHeapNode);
         }
-        minHeapNode.setRank(minHeapNode.getRank()+1);
+        minHeapNode.setRank(minHeapNode.getRank()+1); //update rank because child was added
         countLinks++;
         return minHeapNode;
     }
 
+    /**
+    * public void consolidate()
+    *
+    * Consolidate trees by linking them with consolidateConnect so that we will have O(log(n)) trees, each with a different rank, using the "buckets" method we saw in lecture.
+    *
+    * Help functions: HeapNode.resetMarkedInChain, HeapNode.nulifyParentInChain, HeapNode.insertBefore
+    * Complexity: O(k-1+m), k - number of trees in heap (before deletion of min used prior) / m - number of subtrees of root with minimum key (m = O(logn))
+    *
+    */
     public void consolidate() {
-        HeapNode[] heapArr = new HeapNode[(int)(Math.log(this.size)/Math.log(FibonacciHeap.phi)) + 1];
+        HeapNode[] heapArr = new HeapNode[(int)(Math.log(this.size)/Math.log(FibonacciHeap.phi)) + 1]; // the "buckets" array
         HeapNode currNode = this.first;
         HeapNode tempNode;
         int currRank;
@@ -237,7 +256,7 @@ public class FibonacciHeap
             tempNode.next = tempNode;
             tempNode.prev = tempNode;
             currRank = tempNode.getRank();
-            while (heapArr[currRank] != null) {
+            while (heapArr[currRank] != null) { // Incase there is tree in bucket connect them appropriately
                 tempNode = consolidateConnect(heapArr[currRank], tempNode);
                 this.numTrees--;
                 heapArr[currRank] = null;
@@ -249,7 +268,7 @@ public class FibonacciHeap
         this.min=null;
         this.first=null;
         for (HeapNode heapNode : heapArr) {
-            if (heapNode != null) {
+            if (heapNode != null) { // go over the buckets and start inserting all trees back to the heap
                 if (this.first==null) {
                     this.first = heapNode;
                 }
@@ -264,7 +283,11 @@ public class FibonacciHeap
    /**
     * public void deleteMin()
     *
-    * Deletes the node containing the minimum key.
+    * Deletes the node containing the minimum key. First we remove the minimum key with removeMinNode;
+    * Then we consolidate and connect all trees using the method we saw in lecture with consolidate function.
+    *
+    * Help functions: removeMinNode, consolidate
+    * Complexity: O(k-1+m), k - number of trees in heap / m - number of subtrees of root with minimum key (m = O(logn))
     *
     */
     public void deleteMin()
@@ -280,16 +303,7 @@ public class FibonacciHeap
         this.removeMinNode();
         this.consolidate();
 
-        // HeapNode[] heapArr = new HeapNode[(int)(Math.log(this.size)/Math.log(FibonacciHeap.phi)) + 1];
-
-        // else if (this.size == 1) {
-            
-        // }
-        // else {
-
-        // }
-     	return; // should be replaced by student code
-     	
+     	return;
     }
 
    /**
@@ -309,6 +323,9 @@ public class FibonacciHeap
     * public void meld (FibonacciHeap heap2)
     *
     * Melds heap2 with the current heap.
+    *
+    * Help functions: FibonacciHeap.insertBefore, replaceMin
+    * Complexity: O(1)
     *
     */
     public void meld (FibonacciHeap heap2)
@@ -480,7 +497,7 @@ public class FibonacciHeap
     * In words: The potential equals to the number of trees in the heap
     * plus twice the number of marked nodes in the heap. 
     * 
-    * Complexity:O(log(n))
+    * Complexity:O(1)
     */
     public int potential() 
     {    
@@ -874,7 +891,13 @@ public class FibonacciHeap
     		this.KMinPointer=node;
     	}
         
-
+        /**
+         * private void insertBefore(HeapNode node)
+         *
+         * Add node x as a left sibling to instance node.
+         * 
+         * Complexity: O(1)
+         */
         private void insertBefore(HeapNode node) {
             HeapNode temp = this.prev;
             node.next = this;
@@ -883,6 +906,13 @@ public class FibonacciHeap
             node.prev = temp;
         }
 
+        /**
+         * private void insertBefore(HeapNode node1, HeapNode node2)
+         *
+         * Add a chain of nodes and connect them to instance node. The last node in the chain (node2) will be the left sibling of instance node.
+         * 
+         * Complexity: O(1)
+         */
         private void insertBefore(HeapNode node1, HeapNode node2) {
             HeapNode temp = this.prev;
             node2.next = this;
@@ -891,6 +921,15 @@ public class FibonacciHeap
             node1.prev = temp;
         }
 
+        /**
+         * private int nulifyParentInChain()
+         *
+         * Go over instance node and all it's sibling and change attribute 'parent' to null.
+         * 
+         * Returns the number of nodes in chain (k+1).
+         * 
+         * Complexity: O(k+1), k - number of siblings instance node has.
+         */
         private int nulifyParentInChain() {
             HeapNode target = this;
             int count = 0;
@@ -902,6 +941,15 @@ public class FibonacciHeap
             return count;
         }
 
+        /**
+         * private int ResetMarkedInChain()
+         *
+         * Go over instance node and all it's sibling and change attribute 'mark' to 'false'.
+         * 
+         * Returns the number of nodes in chain in which 'mark' was set to 'true'.
+         * 
+         * Complexity: O(k+1), k - number of siblings instance node has.
+         */
         private int ResetMarkedInChain() {
             HeapNode target = this;
             int count = 0;
